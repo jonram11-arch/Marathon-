@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MCM 2026">
+<title>MCM 2026 Training</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+–bg: #0d0d0f;
+–surface: #161619;
+–surface2: #1e1e23;
+–border: #2a2a32;
+–red: #e63946;
+–orange: #f4a261;
+–green: #2a9d5c;
+–green-light: #3ecf7a;
+–text: #f0f0f0;
+–muted: #6b6b7a;
+–dim: #3a3a45;
+}
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: -apple-system, ‘Helvetica Neue’, Arial, sans-serif;
+min-height: 100vh;
+padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 24px);
+}
+
+/* ── HERO ── */
+.hero {
+background: linear-gradient(160deg, #1a0a0a 0%, #0d0d0f 60%);
+border-bottom: 1px solid var(–border);
+padding: 20px 16px 16px;
+position: relative;
+overflow: hidden;
+}
+.hero::before {
+content: “MCM”;
+position: absolute;
+right: -10px;
+top: -10px;
+font-size: 120px;
+font-weight: 900;
+color: rgba(230,57,70,0.06);
+line-height: 1;
+pointer-events: none;
+user-select: none;
+letter-spacing: -4px;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.hero-label { font-size: 10px; letter-spacing: 0.25em; color: var(–red); text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+.hero-title { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: var(–text); line-height: 1.1; }
+.hero-sub { font-size: 12px; color: var(–muted); margin-top: 3px; }
+.race-box { text-align: right; flex-shrink: 0; margin-left: 12px; }
+.race-days { font-size: 34px; font-weight: 800; color: var(–red); line-height: 1; }
+.race-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.15em; }
+
+.stats-row { display: flex; gap: 8px; }
+.stat-card { flex: 1; background: var(–surface); border: 1px solid var(–border); border-radius: 8px; padding: 10px 12px; }
+.stat-val { font-size: 20px; font-weight: 800; color: var(–text); line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+
+.prog-outer { height: 3px; background: var(–border); border-radius: 2px; margin-top: 12px; }
+.prog-inner { height: 100%; background: var(–red); border-radius: 2px; transition: width 0.5s ease; }
+
+/* ── WEEK NAV ── */
+.week-nav {
+display: flex; align-items: center;
+background: var(–surface); border-bottom: 1px solid var(–border);
+overflow-x: auto; padding: 0 8px;
+scrollbar-width: none; -webkit-overflow-scrolling: touch;
+position: sticky; top: 0; z-index: 100;
+}
+.week-nav::-webkit-scrollbar { display: none; }
+.wk-btn {
+flex-shrink: 0; padding: 12px 10px; border: none; background: none;
+color: var(–muted); font-size: 12px; font-family: inherit;
+font-weight: 600; cursor: pointer; white-space: nowrap;
+border-bottom: 2px solid transparent; transition: all 0.15s;
+position: relative;
+}
+.wk-btn.active { color: var(–text); border-bottom-color: var(–red); }
+.wk-btn.current { color: var(–orange); }
+.wk-btn.current.active { border-bottom-color: var(–orange); }
+.wk-dot { width: 5px; height: 5px; border-radius: 50%; background: var(–green-light); position: absolute; top: 7px; right: 5px; }
+
+/* ── CONTENT ── */
+.content { padding: 16px; max-width: 680px; margin: 0 auto; }
+
+.week-header { margin-bottom: 16px; }
+.week-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+.week-phase { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-top: 6px; }
+.phase-base     { background: #1a2a1a; color: #6ee7b7; border: 1px solid #166534; }
+.phase-build    { background: #1a1f2a; color: #93c5fd; border: 1px solid #1d4ed8; }
+.phase-strength { background: #2a1a2a; color: #d8b4fe; border: 1px solid #7c3aed; }
+.phase-peak     { background: #2a1a1a; color: #fca5a5; border: 1px solid #991b1b; }
+.phase-taper    { background: #2a2a1a; color: #fde68a; border: 1px solid #92400e; }
+.phase-race     { background: #2a0a0a; color: var(–red); border: 1px solid var(–red); }
+.phase-cutback  { background: #1a1a2a; color: #94a3b8; border: 1px solid #334155; }
+.phase-recovery { background: #1a2020; color: #67e8f9; border: 1px solid #0e7490; }
+
+.week-prog { display: flex; align-items: center; gap: 8px; margin: 10px 0 16px; }
+.week-prog-bar { flex: 1; height: 4px; background: var(–border); border-radius: 2px; overflow: hidden; }
+.week-prog-fill { height: 100%; background: var(–green-light); border-radius: 2px; transition: width 0.3s; }
+.week-prog-label { font-size: 12px; color: var(–muted); white-space: nowrap; }
+
+/* ── DAY CARDS ── */
+.day-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 10px; margin-bottom: 8px; overflow: hidden;
+transition: border-color 0.2s;
+}
+.day-card.done { border-color: var(–green); background: #0a150d; }
+.day-card.rest { opacity: 0.45; }
+
+.day-head {
+display: flex; align-items: center; gap: 10px;
+padding: 12px 14px; cursor: pointer; user-select: none;
+}
+.day-check {
+width: 24px; height: 24px; border-radius: 50%;
+border: 2px solid var(–dim); background: none;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; cursor: pointer; transition: all 0.2s;
+font-size: 13px; color: white; font-weight: 700;
+}
+.day-card.done .day-check { background: var(–green); border-color: var(–green); }
+.day-name { font-size: 11px; font-weight: 700; color: var(–muted); text-transform: uppercase; letter-spacing: 0.1em; width: 28px; flex-shrink: 0; }
+.day-workout { flex: 1; font-size: 13px; color: var(–text); line-height: 1.3; }
+.day-card.done .day-workout { color: var(–muted); text-decoration: line-through; }
+.day-type-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
+.badge-run     { background: #1a2a3a; color: #7dd3fc; }
+.badge-long    { background: #2a1a1a; color: #fca5a5; }
+.badge-lift    { background: #1a1a2a; color: #c4b5fd; }
+.badge-rest    { background: #1a1a1a; color: #6b6b7a; }
+.badge-race    { background: #2a0a0a; color: var(–red); }
+.badge-runlift { background: #0f2a1a; color: #6ee7b7; }
+.day-expand { color: var(–muted); font-size: 14px; transition: transform 0.2s; flex-shrink: 0; }
+.day-card.expanded .day-expand { transform: rotate(180deg); }
+
+/* ── LOG PANEL ── */
+.day-log {
+padding: 0 14px 14px;
+border-top: 1px solid var(–border);
+display: none;
+}
+.day-card.expanded .day-log { display: block; }
+.log-date { font-size: 11px; color: var(–muted); padding-top: 10px; margin-bottom: 2px; }
+.log-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 10px; margin-bottom: 5px; font-weight: 600; }
+.log-row { display: flex; gap: 8px; }
+.log-input {
+flex: 1; padding: 9px 10px; background: var(–bg);
+border: 1px solid var(–border); border-radius: 6px;
+color: var(–text); font-size: 14px; font-family: inherit; outline: none;
+-webkit-appearance: none;
+}
+.log-input:focus { border-color: var(–red); }
+textarea.log-input { width: 100%; margin-top: 0; resize: none; line-height: 1.4; }
+.log-save {
+padding: 9px 18px; background: var(–red); border: none;
+border-radius: 6px; color: white; font-size: 13px; font-weight: 700;
+font-family: inherit; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+.log-save:active { opacity: 0.75; }
+.log-saved { font-size: 11px; color: var(–green-light); margin-top: 6px; display: none; }
+.logged-chips { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.logged-chip {
+padding: 3px 10px; background: var(–surface2); border: 1px solid var(–border);
+border-radius: 20px; font-size: 11px; color: var(–text);
+}
+
+/* ── RACE DAY ── */
+.race-day-card {
+background: linear-gradient(135deg, #200808, #0d0d0f);
+border: 1px solid var(–red); border-radius: 12px;
+padding: 28px 20px; text-align: center; margin-bottom: 8px;
+}
+.race-day-title { font-size: 32px; font-weight: 900; color: var(–red); letter-spacing: 1px; line-height: 1.1; }
+.race-day-sub { font-size: 14px; color: var(–muted); margin-top: 6px; }
+.race-day-goal { font-size: 18px; font-weight: 800; color: var(–orange); margin-top: 16px; }
+.race-day-quote { font-size: 13px; color: var(–muted); margin-top: 10px; font-style: italic; }
+
+/* ── HERE BADGE ── */
+.here-badge { display: inline-block; padding: 2px 8px; background: #2a1a00; border: 1px solid var(–orange); border-radius: 20px; font-size: 10px; color: var(–orange); font-weight: 700; margin-left: 8px; vertical-align: middle; }
+</style>
+
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-top">
+    <div>
+      <div class="hero-label">Marine Corps Marathon 2026</div>
+      <div class="hero-title">MCM Training</div>
+      <div class="hero-sub">18 Weeks · Higdon Intermediate 2</div>
+    </div>
+    <div class="race-box">
+      <div class="race-days" id="daysOut">—</div>
+      <div class="race-label">days to race</div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="statWeek">—</div>
+      <div class="stat-lbl">Current Wk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statDone">—</div>
+      <div class="stat-lbl">Done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statMiles">—</div>
+      <div class="stat-lbl">Miles</div>
+    </div>
+  </div>
+  <div class="prog-outer"><div class="prog-inner" id="overallProg" style="width:0%"></div></div>
+</div>
+
+<div class="week-nav" id="weekNav"></div>
+<div class="content" id="content"></div>
+
+<script>
+const RACE_DATE  = new Date("2026-10-25");
+const START_DATE = new Date("2026-06-22");
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const PHASES = {
+  1:"base",2:"base",3:"base",4:"cutback",
+  5:"build",6:"build",7:"build",8:"cutback",
+  9:"strength",10:"strength",11:"strength",12:"cutback",
+  13:"peak",14:"cutback",15:"peak",16:"recovery",
+  17:"taper",18:"race"
+};
+const PHASE_LABELS = {
+  base:"Base + Control", build:"Build Phase", strength:"Strength Phase",
+  peak:"Peak Phase", cutback:"Cutback Week", recovery:"Recovery Week",
+  taper:"Taper", race:"Race Week 🎖️"
+};
+const BADGE_LABELS = {run:"Run",long:"Long Run",lift:"Lift",runlift:"Run+Lift",rest:"Rest",race:"Race Day"};
+
+const PLAN = {
+1:  [{d:"Mon",w:"35 min easy + 🏋️ Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"60 min easy",t:"run"},{d:"Thu",w:"35 min easy + 🦵 Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"10 mi easy",t:"long"},{d:"Sun",w:"35 min easy",t:"run"}],
+2:  [{d:"Mon",w:"35 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"60 min easy",t:"run"},{d:"Thu",w:"35 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"11 mi easy",t:"long"},{d:"Sun",w:"35 min easy",t:"run"}],
+3:  [{d:"Mon",w:"40 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"65 min easy",t:"run"},{d:"Thu",w:"35 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"12 mi (last 2 @ ~10:45)",t:"long"},{d:"Sun",w:"35 min easy",t:"run"}],
+4:  [{d:"Mon",w:"35 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"60 min easy",t:"run"},{d:"Thu",w:"35 min easy + Lower body (light)",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"8 mi easy",t:"long"},{d:"Sun",w:"35 min easy",t:"run"}],
+5:  [{d:"Mon",w:"40 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"70 min easy",t:"run"},{d:"Thu",w:"40 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"13 mi (last 3 steady)",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+6:  [{d:"Mon",w:"40 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"75 min (last 15 min ~10:00 pace)",t:"run"},{d:"Thu",w:"40 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"14 mi (last 3 @ ~10:30–10:45)",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+7:  [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"80 min (last 20 min ~10:00 pace)",t:"run"},{d:"Thu",w:"40 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"15 mi (last 4 @ ~10:30)",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+8:  [{d:"Mon",w:"40 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"70 min easy",t:"run"},{d:"Thu",w:"40 min easy + Lower body (light)",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"10 mi easy",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+9:  [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"85 min (last 20 min @ ~10:00)",t:"run"},{d:"Thu",w:"45 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"16 mi (last 4 @ ~10:20–10:30)",t:"long"},{d:"Sun",w:"45 min easy",t:"run"}],
+10: [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"90 min (25 min @ ~9:50–10:00)",t:"run"},{d:"Thu",w:"45 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"17 mi (last 5 @ ~10:15–10:25)",t:"long"},{d:"Sun",w:"45 min easy",t:"run"}],
+11: [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"90 min (30 min @ ~9:45–10:00)",t:"run"},{d:"Thu",w:"40 min easy + Lower body (very light)",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"🚨 20 mi (last 5 @ ~10:15)",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+12: [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"75 min easy",t:"run"},{d:"Thu",w:"40 min easy + Lower body (light)",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"12 mi easy",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+13: [{d:"Mon",w:"50 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"95 min (35 min @ ~9:45–10:00)",t:"run"},{d:"Thu",w:"40 min easy + Lower body (very light)",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"🚨 20 mi (last 6 @ ~10:10–10:20)",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+14: [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"80 min easy",t:"run"},{d:"Thu",w:"40 min easy + Lower body",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"12 mi easy",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+15: [{d:"Mon",w:"50 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"100 min (40 min @ ~9:45)",t:"run"},{d:"Thu",w:"35–40 min easy + Lower body (very light)",t:"runlift"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"🚨 20 mi progressive (last 6 → 10:30 down to ~9:50)",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+16: [{d:"Mon",w:"45 min easy + Upper body",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"80 min (15–20 min @ marathon pace)",t:"run"},{d:"Thu",w:"35–40 min easy (no heavy legs)",t:"run"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"12 mi easy",t:"long"},{d:"Sun",w:"40 min easy",t:"run"}],
+17: [{d:"Mon",w:"40 min easy + light upper/core",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"60–70 min (15–20 min @ marathon pace)",t:"run"},{d:"Thu",w:"35 min easy",t:"run"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"8 mi (last 2 @ marathon pace)",t:"long"},{d:"Sun",w:"35 min easy",t:"run"}],
+18: [{d:"Mon",w:"35 min easy + core",t:"runlift"},{d:"Tue",w:"Rest",t:"rest"},{d:"Wed",w:"30 min easy",t:"run"},{d:"Thu",w:"20 min easy",t:"run"},{d:"Fri",w:"Rest",t:"rest"},{d:"Sat",w:"2–3 mi shakeout",t:"run"},{d:"Sun",w:"🎖️ MARINE CORPS MARATHON — 26.2 miles",t:"race"}],
+};
+
+// ── Storage ───────────────────────────────────────────────────────────────────
+function sKey(wk,di){ return `mcm26-w${wk}-d${di}`; }
+function loadDay(wk,di){ try{ return JSON.parse(localStorage.getItem(sKey(wk,di))||"{}"); }catch(e){ return {}; } }
+function saveDay(wk,di,data){ try{ localStorage.setItem(sKey(wk,di),JSON.stringify(data)); }catch(e){} }
+
+// ── Date helpers ──────────────────────────────────────────────────────────────
+function getWeekStart(wk){
+  const d=new Date(START_DATE);
+  d.setDate(d.getDate()+(wk-1)*7);
+  return d;
+}
+function getCurrentWeek(){
+  const now=new Date();
+  const diff=Math.floor((now-START_DATE)/(7*24*60*60*1000));
+  return Math.min(Math.max(diff+1,1),18);
+}
+function daysToRace(){
+  const now=new Date(); now.setHours(0,0,0,0);
+  return Math.max(0,Math.round((RACE_DATE-now)/(24*60*60*1000)));
+}
+function workoutDate(wk,di){
+  const d=getWeekStart(wk);
+  d.setDate(d.getDate()+di);
+  return `${MONTH_NAMES[d.getMonth()]} ${d.getDate()}`;
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function getStats(){
+  let done=0,total=0,miles=0;
+  for(let wk=1;wk<=18;wk++){
+    PLAN[wk].forEach((day,di)=>{
+      if(day.t==="rest") return;
+      total++;
+      const s=loadDay(wk,di);
+      if(s.done){ done++; if(s.miles) miles+=parseFloat(s.miles)||0; }
+    });
+  }
+  return {done,total,miles:miles.toFixed(1)};
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeWeek=getCurrentWeek();
+let expandedDay=null;
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render(){ renderHero(); renderNav(); renderWeek(activeWeek); }
+
+function renderHero(){
+  document.getElementById("daysOut").textContent=daysToRace();
+  const s=getStats();
+  const cw=getCurrentWeek();
+  document.getElementById("statWeek").textContent=cw>18?"Done!":cw+"/18";
+  document.getElementById("statDone").textContent=s.done+"/"+s.total;
+  document.getElementById("statMiles").textContent=s.miles;
+  document.getElementById("overallProg").style.width=(s.done/s.total*100).toFixed(0)+"%";
+}
+
+function renderNav(){
+  const cw=getCurrentWeek();
+  let html="";
+  for(let w=1;w<=18;w++){
+    let hasDone=false;
+    PLAN[w].forEach((d,di)=>{ if(d.t!=="rest"&&loadDay(w,di).done) hasDone=true; });
+    const label=w===18?"Race":"Wk "+w;
+    html+=`<button class="wk-btn${w===activeWeek?" active":""}${w===cw?" current":""}" onclick="switchWeek(${w})">${label}${hasDone?'<span class="wk-dot"></span>':""}</button>`;
+  }
+  document.getElementById("weekNav").innerHTML=html;
+  setTimeout(()=>{
+    const nav=document.getElementById("weekNav");
+    const btn=nav.querySelector(".wk-btn.active");
+    if(btn) btn.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+  },50);
+}
+
+function renderWeek(wk){
+  const days=PLAN[wk];
+  const phase=PHASES[wk];
+  const cw=getCurrentWeek();
+  let weekDone=0,weekTotal=0;
+  days.forEach((d,di)=>{ if(d.t==="rest") return; weekTotal++; if(loadDay(wk,di).done) weekDone++; });
+  const pct=weekTotal>0?(weekDone/weekTotal*100).toFixed(0):0;
+  const ws=getWeekStart(wk);
+  const wsStr=`${MONTH_NAMES[ws.getMonth()]} ${ws.getDate()}`;
+
+  let html=`
+    <div class="week-header">
+      <div class="week-title">Week ${wk}${wk===cw?'<span class="here-badge">YOU ARE HERE</span>':""}</div>
+      <div><span class="week-phase phase-${phase}">${PHASE_LABELS[phase]}</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">Starts ${wsStr}</div>
+      <div class="week-prog">
+        <div class="week-prog-bar"><div class="week-prog-fill" style="width:${pct}%"></div></div>
+        <span class="week-prog-label">${weekDone}/${weekTotal} done</span>
+      </div>
+    </div>`;
+
+  days.forEach((day,di)=>{
+    // Race day special
+    if(wk===18&&di===6){
+      html+=`
+        <div class="race-day-card">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Sunday, October 25, 2026 · Washington D.C.</div>
+          <div class="race-day-title">🎖️ MARINE CORPS<br>MARATHON</div>
+          <div class="race-day-sub">26.2 miles</div>
+          <div class="race-day-goal">Goal: 4:15:00</div>
+          <div class="race-day-quote">Trust your training. Run your race.</div>
+        </div>`;
+      return;
+    }
+
+    const saved=loadDay(wk,di);
+    const isDone=!!saved.done;
+    const isExpanded=expandedDay===`${wk}-${di}`;
+    const isRest=day.t==="rest";
+
+    html+=`
+      <div class="day-card${isDone?" done":""}${isRest?" rest":""}${isExpanded?" expanded":""}" id="dc-${wk}-${di}">
+        <div class="day-head" onclick="${isRest?"":"toggleExpand("+wk+","+di+")"}">
+          ${!isRest?`<div class="day-check" onclick="event.stopPropagation();toggleDone(${wk},${di})">${isDone?"✓":""}</div>`:`<div style="width:24px;flex-shrink:0"></div>`}
+          <span class="day-name">${day.d}</span>
+          <span class="day-workout">${day.w}</span>
+          <span class="day-type-badge badge-${day.t}">${BADGE_LABELS[day.t]||day.t}</span>
+          ${!isRest?`<span class="day-expand">▾</span>`:""}
+        </div>`;
+
+    if(!isRest){
+      const wDate=workoutDate(wk,di);
+      html+=`<div class="day-log" id="log-${wk}-${di}">
+        <div class="log-date">${wDate}</div>`;
+
+      if(day.t!=="lift"){
+        html+=`
+          <div class="log-label">Actual Time &amp; Miles</div>
+          <div class="log-row">
+            <input class="log-input" type="text" placeholder="Time (e.g. 38:22)" id="time-${wk}-${di}" value="${saved.time||""}">
+            <input class="log-input" type="number" inputmode="decimal" placeholder="Miles" id="miles-${wk}-${di}" value="${saved.miles||""}">
+          </div>`;
+      } else {
+        html+=`
+          <div class="log-label">Actual Time</div>
+          <div class="log-row">
+            <input class="log-input" type="text" placeholder="Time (e.g. 45 min)" id="time-${wk}-${di}" value="${saved.time||""}">
+          </div>`;
+      }
+
+      html+=`
+        <div class="log-label">How did it feel?</div>
+        <textarea class="log-input" rows="2" placeholder="Notes, pace, weather, how you felt..." id="notes-${wk}-${di}">${saved.notes||""}</textarea>
+
+```
+    <div class="log-row" style="margin-top:10px">
+      <button class="log-save" onclick="saveLog(${wk},${di})">Save</button>
+    </div>
+    <div class="log-saved" id="saved-${wk}-${di}">✓ Saved!</div>`;
+
+  if(isDone&&(saved.time||saved.miles||saved.notes)){
+    html+=`<div class="logged-chips">`;
+    if(saved.time)  html+=`<span class="logged-chip">⏱ ${saved.time}</span>`;
+    if(saved.miles) html+=`<span class="logged-chip">📍 ${saved.miles} mi</span>`;
+    if(saved.notes) html+=`<span class="logged-chip">📝 ${saved.notes.substring(0,28)}${saved.notes.length>28?"…":""}</span>`;
+    html+=`</div>`;
+  }
+
+  html+=`</div>`;
+}
+html+=`</div>`;
+```
+
+});
+
+document.getElementById(“content”).innerHTML=html;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+function switchWeek(wk){
+activeWeek=wk; expandedDay=null;
+renderNav(); renderWeek(wk);
+window.scrollTo({top:document.getElementById(“weekNav”).offsetTop-2,behavior:“smooth”});
+}
+
+function toggleExpand(wk,di){
+const key=`${wk}-${di}`;
+expandedDay=expandedDay===key?null:key;
+renderWeek(wk);
+}
+
+function toggleDone(wk,di){
+const s=loadDay(wk,di);
+s.done=!s.done;
+saveDay(wk,di,s);
+renderHero(); renderNav(); renderWeek(wk);
+}
+
+function saveLog(wk,di){
+const s=loadDay(wk,di);
+const tEl=document.getElementById(`time-${wk}-${di}`);
+const mEl=document.getElementById(`miles-${wk}-${di}`);
+const nEl=document.getElementById(`notes-${wk}-${di}`);
+if(tEl)  s.time =tEl.value.trim();
+if(mEl)  s.miles=mEl.value.trim();
+if(nEl)  s.notes=nEl.value.trim();
+if(!s.done&&(s.time||s.miles||s.notes)) s.done=true;
+saveDay(wk,di,s);
+const savedEl=document.getElementById(`saved-${wk}-${di}`);
+if(savedEl){ savedEl.style.display=“block”; setTimeout(()=>savedEl.style.display=“none”,2000); }
+renderHero(); renderNav(); renderWeek(wk);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+
+</body>
+</html>
